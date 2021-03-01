@@ -1,0 +1,193 @@
+{% extends "layout.html" %}
+{% block content %}
+
+  <main id="main">
+
+    <!-- ======= Breadcrumbs ======= -->
+    <section id="breadcrumbs" class="breadcrumbs">
+      <div class="container">
+
+        <ol>
+          <li><a href="{{ url_for('index') }}">Home</a></li>
+          <li><a href="{{ url_for('events') }}">Events</a></li>
+          <li>Event {{ id }}</li>
+        </ol>
+        <h2>Event {{ id }}</h2>
+
+      </div>
+    </section><!-- End Breadcrumbs -->
+
+
+  <!-- ======= Event Section ======= -->
+            <section id="contact" class="contact">
+              <div class="container" data-aos="fade-up">
+
+                <div class="row justify-content-center">
+                  <div class="col-lg-12 col-md-12 d-flex align-items-center">
+                    <div class="row php-email-form">
+                        <div class="col-12 col-md-6 text-center" style="text-align: center; padding-top: 5px; padding-bottom: 5px">
+                                <div class="section-title">
+                                  <h2 class="icon-size"><i class="icofont-ui-calendar"></i></h2>
+                                </div>
+                                <div class="player-score-container score-hover" style="padding: 5px"><span class="player-score">Town</span>
+                                    <span>{{ event.town.name }}</span>
+                                </div>
+                                <div class="player-score-container score-hover" style="padding: 5px"><span class="player-score">Sport</span>
+                                    <span><i class="{{ event.sport.icon }}"></i> {{ event.sport.name }}</span>
+                                </div>
+                                <div class="player-score-container score-hover" style="padding: 5px"><span class="player-score">Place</span>
+                                    <span>
+                                        {% if event.sport_club_id == None %}
+                                            {{ event.place }}
+                                        {% else %}
+                                            {% for user in users %}
+                                                {% if user.id == event.sport_club_id %}
+                                                    <a href="{{ url_for('sportclub', id=event.sport_club_id) }}">{{ user.name }}</a>
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
+                                    </span>
+                                </div>
+                                <div class="player-score-container score-hover" style="padding: 5px"><span class="player-score">Start Date</span>
+                                    <span>{{ event.date_start.strftime('%b %d, %Y') }}</span>
+                                </div>
+                                <div class="player-score-container score-hover" style="padding: 5px"><span class="player-score">End Date</span>
+                                    <span>{{ event.date_end.strftime('%b %d, %Y') }}</span>
+                                </div>
+                                <div class="player-score-container score-hover" style="padding: 5px"><span class="player-score">Start Time</span>
+                                    <span>{{ event.date_start.strftime('%H:%M') }}</span>
+                                </div>
+                                <div class="player-score-container score-hover" style="padding: 5px"><span class="player-score">End Time</span>
+                                    <span>{{ event.date_end.strftime('%H:%M') }}</span>
+                                </div>
+                                <br>
+                                <div class="player-score-container score-hover" style="padding: 5px"><span class="player-score">Wanted Players</span>
+                                    <span>{{ event.wanted_players_number }}</span>
+                                </div>
+                                <div class="player-score-container score-hover" style="padding: 5px"><span class="player-score">Found Players</span>
+                                    <span>{{ found_players_number }}</span>
+                                </div>
+                                <br>
+                                <div class="player-score-container score-hover" style="padding: 5px"><span class="player-score">Added By</span>
+                                    <span>
+                                        {% if event.creator.role_id !=3 %}
+                                            <a href="{{ url_for('player', id=event.creator.id) }}">{{ event.creator.name }} {{ event.creator.surname }}</a>
+                                        {% else %}
+                                            <a href="{{ url_for('sportclub', id=event.creator.id) }}">{{ event.creator.name }}</a>
+                                        {% endif %}
+                                    </span>
+                                </div>
+                                <div class="player-score-container score-hover" style="padding: 5px"><span class="player-score">Added On</span>
+                                    <span>{{ event.date_added.strftime('%b %d, %Y') }}</span>
+                                </div>
+                        </div>
+                        <div class="col-12 col-md-6 text-center" style="text-align: center; padding-top: 5px; padding-bottom: 5px">
+                            {% if session.get('user_id') and session.get('user_role') != 3 and event.creator_id != session.get('user_id') and event.date_start > now %}
+                                {% set participant = namespace(value=False) %}
+                                {% for participating_player in participating_players %}
+                                    {% if participating_player.user_id != event.creator_id and participating_player.user_id == session['user_id'] %}
+                                        {% set participant.value = True %}
+                                    {% endif %}
+                                {% endfor %}
+                                {% if participant.value == False %}
+                                    {% if event.wanted_players_number > found_players_number %}
+                                        <button onclick="window.location = '{{ url_for('handle_join', event_id=event.id) }}'" type="submit" style="padding: 5px 10px 5px 10px !important; font-size: 0.9em; margin-top: 5px">Join Event</button>
+                                    {% endif %}
+                                {% else %}
+                                    <button onclick="window.location = '{{ url_for('handle_disjoin', event_id=event.id) }}'" type="submit" style="padding: 5px 10px 5px 10px !important; font-size: 0.9em; margin-top: 5px">Disjoin Event</button>
+                                {% endif %}
+                            {% endif %}
+                            {% if session.get('user_id') == event.creator_id and event.date_start > now %}
+                                {% if session['user_role'] != 3 %}
+                                    <button onclick="window.location = '{{ url_for('edit_event', id=event.id) }}'" type="submit" style="padding: 5px 10px 5px 10px !important; font-size: 0.9em; margin-top: 5px">Edit Event</button>
+                                {% else %}
+                                    <button onclick="window.location = '{{ url_for('edit_event_sportclub', id=event.id) }}'" type="submit" style="padding: 5px 10px 5px 10px !important; font-size: 0.9em; margin-top: 5px">Edit Event</button>
+                                {% endif %}
+                            {% endif %}
+                            <div class="row justify-content-center" style="padding-top: 40px; padding-bottom: 20px;">
+                            <div class="col-12 justify-content-center">
+                                <div class="player-score"><i class="icofont-caret-right"></i>Participating Players</div>
+                            </div>
+                            <div class="col-8 justify-content-center">
+                                <div id="reviews-made" style="display: block">
+                                    {% set found = namespace(value=False) %}
+                                    {% if participating_players|length > 0 %}
+                                        {% for participating_player in participating_players %}
+                                            {% if participating_player.user.role_id != 3 %}
+                                                {% set found.value = True %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+                                    {% if found.value == True %}
+                                        <div class="row" style="text-align: center; padding-bottom: 15px">
+                                            <div class="col-7"><h6 style="color: rgb(33,190,33) !important;">Player Name</h6></div>
+                                            <div class="col-5"><h6 style="color: rgb(33,190,33) !important;">Player Score</h6></div>
+                                        </div>
+                                        {% for participating_player in participating_players %}
+                                            {% if participating_player.user.role_id != 3 %}
+                                                <div class="row" style="text-align: center; padding-bottom: 10px">
+                                                    <div class="col-7 d-flex align-items-center justify-content-center"><a href="{{ url_for('player', id=participating_player.user_id) }}">{{ participating_player.user.name }} {{ participating_player.user.surname }}</a></div>
+                                                    <div class="col-5 d-flex align-items-center justify-content-center">
+                                                        {% set flag = namespace(value=False) %}
+                                                        {% set player_score = namespace(value=0) %}
+                                                        {% set scores = namespace(skills=0, sportsmanship=0, willingness=0,
+                                                            reliability=0, punctuality=0, count=0) %}
+                                                        {% if reviews|length > 0 %}
+                                                            {% for review in reviews %}
+                                                                {% if review.reviewed_id == participating_player.user_id %}
+                                                                    {% set flag.value = True %}
+                                                                    {% set scores.skills = scores.skills + review.skills %}
+                                                                    {% set scores.sportsmanship = scores.sportsmanship + review.sportsmanship %}
+                                                                    {% set scores.willingness = scores.willingness + review.willingness %}
+                                                                    {% set scores.reliability = scores.reliability + review.reliability %}
+                                                                    {% set scores.punctuality = scores.punctuality + review.punctuality %}
+                                                                    {% set scores.count = scores.count + 1 %}
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                            {% if flag.value == True %}
+                                                                {% set scores.skills = scores.skills / scores.count %}
+                                                                {% set scores.sportsmanship = scores.sportsmanship / scores.count %}
+                                                                {% set scores.willingness = scores.willingness / scores.count %}
+                                                                {% set scores.reliability = scores.reliability / scores.count %}
+                                                                {% set scores.punctuality = scores.punctuality / scores.count %}
+                                                                {% set player_score.value = (scores.skills + scores.sportsmanship + scores.willingness +
+                                                                        scores.reliability + scores.punctuality) / 5 %}
+                                                                <i class="icofont-star"></i> {{ '%.1f'|format(player_score.value) }}
+                                                            {% else %}
+                                                                n.a.
+                                                            {% endif %}
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% else %}
+                                        <div class="row d-flex justify-content-center">No player found.</div>
+                                    {% endif %}
+                                    <br><br>
+                                    {% set participant = namespace(value=False) %}
+                                    {% for participating_player in participating_players %}
+                                    {% if participating_player.user_id == session['user_id'] %}
+                                        {% set participant.value = True %}
+                                    {% endif %}
+                                    {% endfor %}
+                                    {% if participant.value == True %}
+                                        <button onclick="window.location = '{{ url_for('create_review', event_id=event.id) }}'" type="submit" style="padding: 5px 10px 5px 10px !important; font-size: 0.9em; margin-top: 5px">Leave Review</button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+
+                  </div>
+
+                </div>
+                </div>
+              </div>
+            </section><!-- End Event Section -->
+
+
+  </main><!-- End #main -->
+
+{% endblock %}

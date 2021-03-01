@@ -1,0 +1,57 @@
+{% extends "layout.html" %}
+{% block content %}
+
+    <!-- ======= Breadcrumbs ======= -->
+    <section id="breadcrumbs" class="breadcrumbs">
+      <div class="container">
+
+        <ol>
+          <li><a href="{{ url_for('index') }}">Home</a></li>
+          <li><a href="{{ url_for('myaccount') }}">My Account</a></li>
+          <li>Messages</li>
+        </ol>
+        <h2>Messages</h2>
+
+      </div>
+    </section><!-- End Breadcrumbs -->
+
+      <div class="container">
+
+            <!-- ======= My Account Section ======= -->
+            <section id="contact" class="contact">
+              <div class="container" data-aos="fade-up">
+
+                <div class="section-title">
+                  <h2>Hi, {{ session['user_name'] }}!</h2>
+                </div>
+
+                <div class="row justify-content-center">
+
+                  <div class="col-4 col-lg-2 d-flex align-items-stretch">
+                    <div class="php-email-form myaccount-links">
+                        <ul>
+                          <li><a href="{{ url_for('myaccount') }}">Info</a></li>
+                            {% if session['user_role'] != 3 %}
+                                <li><a href="{{ url_for('reviews') }}">Reviews</a></li>
+                            {% endif %}
+                          <li><a href="{{ url_for('myevents') }}">My Events</a></li>
+                          <li class="active"><a href="{{ url_for('messages') }}">Messages</a></li>
+                        </ul>
+                    </div>
+                  </div>
+                  <div class="col-12 col-lg-8 d-flex align-items-stretch">
+                    <div class="php-email-form">
+                        Work in progress...
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+            </section><!-- End My Account Section -->
+      </div>
+
+  </main><!-- End #main -->
+
+
+{% endblock %}

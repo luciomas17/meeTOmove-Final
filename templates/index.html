@@ -1,0 +1,187 @@
+{% extends "layout.html" %}
+{% block content %}
+
+  <!-- ======= Hero Section ======= -->
+  <section id="hero" class="d-flex align-items-center">
+
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-6 d-flex flex-column justify-content-center pt-4 pt-lg-0 order-2 order-lg-1" data-aos="fade-up" data-aos-delay="200">
+          <h1>Looking for a sport mate? Looking for a place to train?</h1>
+          <h2>This is the platform you needed! Create an event or join an existing one.</h2>
+          <div class="align-items-baseline">
+              {% if session['user_id'] %}
+                  <div class="welcome-back">Hi, {{ session['user_name'] }}!</div>
+                <a href="{{ url_for('myaccount') }}" class="btn-get-started scrollto">My Account</a>
+              {% else %}
+                <a href="{{ url_for('signin') }}" class="btn-get-started scrollto">Join Us</a>
+              {% endif %}
+          </div>
+        </div>
+        <div class="col-lg-6 order-1 order-lg-2 hero-img" data-aos="zoom-in" data-aos-delay="200">
+          <img src="{{ url_for('static', filename='img/hero-img.png') }}" class="img-fluid animated" alt="">
+        </div>
+      </div>
+    </div>
+
+  </section><!-- End Hero -->
+
+  <main id="main">
+
+    <!-- ======= Partners Section ======= -->
+    <section id="cliens" class="cliens section-bg">
+      <div class="container">
+
+        <div class="row" data-aos="zoom-in">
+
+          <div class="col-lg-4 col-md d-flex align-items-center justify-content-center">
+            <img src="{{ url_for('static', filename='img/clients/client-1.png') }}" class="img-fluid" alt="">
+          </div>
+
+          <div class="col-lg-4 col-md d-flex align-items-center justify-content-center">
+            <img src="{{ url_for('static', filename='img/clients/client-2.png') }}" class="img-fluid" alt="">
+          </div>
+
+          <div class="col-lg-4 col-md d-flex align-items-center justify-content-center">
+            <img src="{{ url_for('static', filename='img/clients/client-3.png') }}" class="img-fluid" alt="">
+          </div>
+
+        </div>
+
+      </div>
+    </section><!-- End Partners Section -->
+
+    <!-- ======= Find Event Section ======= -->
+    <section id="about" class="about">
+      <div class="container" data-aos="fade-up">
+
+        <div class="section-title">
+          <h2>Find Event</h2>
+        </div>
+            <form method="post">
+                <div class="row content" style="padding-top: 1em">
+                    <div class="col-lg-4 col-md d-flex align-items-center justify-content-center">
+                    <div class="form-group">
+                    <label style="display: flex; padding-bottom: 5px">Select a town</label>
+                       <select class="selectpicker" data-style="btn-outline-primary" data-container="body" name="town">
+                           {% for town in towns  %}
+                               <option value="{{ town.id }}">{{ town.name }}</option>
+                           {% endfor %}
+                        </select>
+                        {% for error in search_event_form.town.errors %}
+                            <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    </div>
+
+                    <div class="col-lg-4 col-md d-flex align-items-center justify-content-center">
+                    <div class="form-group">
+                    <label style="display: flex; padding-bottom: 5px">Select a sport</label>
+                    <select class="selectpicker" data-style="btn-outline-primary" data-container="body" name="sport">
+                        <option value="all">All</option>
+                        <option data-divider="true"></option>
+                        {% for sport in sports  %}
+                           <option value="{{ sport.id }}">{{ sport.name }}</option>
+                       {% endfor %}
+                    </select>
+                        {% for error in search_event_form.sport.errors %}
+                            <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    </div>
+
+                    <div class="col-lg-4 col-md d-flex align-items-center justify-content-center">
+                    <div class="form-group">
+                        <label style="display: flex; color:#fff; padding-bottom: 5px">###</label>
+                        {{ search_event_form.submit(class='btn-learn-more') }}
+                        {{ search_event_form.hidden_tag() }}
+                    </div>
+                    </div>
+                    </div>
+            </form>
+            <div class="text-center" style="padding-top: 2em">Would you like to create a new event? <a href="#">Click here</a>.</div>
+        </div>
+    </section><!-- End Find Event Section -->
+
+    <!-- ======= Who's the App for? Section ======= -->
+    <section id="team" class="team section-bg">
+      <div class="container" data-aos="fade-up">
+
+        <div class="section-title">
+          <h2>Who's the app for?</h2>
+        </div>
+
+        <div class="row">
+
+          <div class="col-lg-6">
+            <div class="member d-flex align-items-start" data-aos="zoom-in" data-aos-delay="100">
+              <div class="pic"><img src="{{ url_for('static', filename='img/team/players.png') }}" class="img-fluid" alt=""></div>
+              <div class="member-info">
+                <h4>Players</h4>
+                <p>Are you looking for someone to compete with? Become a member of our sporty family, join an event or create an existing one.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-6 mt-4 mt-lg-0">
+            <div class="member d-flex align-items-start" data-aos="zoom-in" data-aos-delay="200">
+              <div class="pic"><img src="{{ url_for('static', filename='img/team/sportclubs.png') }}" class="img-fluid" alt=""></div>
+              <div class="member-info">
+                <h4>Sport Clubs</h4>
+                <p>Do you want to increase your visibility? Offer your facilities by joining us and letting our members partecipate to your events.</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section><!-- End Who's the App for? Section -->
+
+    <!-- ======= FAQ Section ======= -->
+    <section id="faq" class="faq">
+      <div class="container" data-aos="fade-up">
+
+        <div class="section-title">
+          <h2>FAQ</h2>
+        </div>
+
+        <div class="faq-list">
+          <ul>
+            <li data-aos="fade-up" data-aos-delay="100">
+              <i class="bx bx-help-circle icon-help"></i> <a data-toggle="collapse" class="collapse" href="#faq-list-1">How can I join meeTOmove?<i class="bx bx-chevron-down icon-show"></i><i class="bx bx-chevron-up icon-close"></i></a>
+              <div id="faq-list-1" class="collapse show" data-parent=".faq-list">
+                <p>If you are a player create a new user profile by clicking <a href="{{ url_for('signup') }}" style="display: inline; padding: 0 !important">here</a> and filling the sign up form. If you are a sport club click <a href="{{ url_for('signup_sportclubs') }}" style="display: inline; padding: 0 !important">here</a> instead.</p>
+              </div>
+            </li>
+
+            <li data-aos="fade-up" data-aos-delay="200">
+              <i class="bx bx-help-circle icon-help"></i> <a data-toggle="collapse" href="#faq-list-2" class="collapsed">How can I join an existing event?<i class="bx bx-chevron-down icon-show"></i><i class="bx bx-chevron-up icon-close"></i></a>
+              <div id="faq-list-2" class="collapse" data-parent=".faq-list">
+                <p>Select the event you are looking for from <a href="{{ url_for('events') }}" style="display: inline; padding: 0 !important">here</a> and join it by clicking the Join Event button.</p>
+              </div>
+            </li>
+
+            <li data-aos="fade-up" data-aos-delay="300">
+              <i class="bx bx-help-circle icon-help"></i> <a data-toggle="collapse" href="#faq-list-3" class="collapsed">How can I create an event?<i class="bx bx-chevron-down icon-show"></i><i class="bx bx-chevron-up icon-close"></i></a>
+              <div id="faq-list-3" class="collapse" data-parent=".faq-list">
+                <p>Reach the dedicated page <a href="{{ url_for('events') }}" style="display: inline; padding: 0 !important">here</a> and fill the Add Event form.</p>
+              </div>
+            </li>
+
+            <li data-aos="fade-up" data-aos-delay="400">
+              <i class="bx bx-help-circle icon-help"></i> <a data-toggle="collapse" href="#faq-list-4" class="collapsed">How can I leave a Review?<i class="bx bx-chevron-down icon-show"></i><i class="bx bx-chevron-up icon-close"></i></a>
+              <div id="faq-list-4" class="collapse" data-parent=".faq-list">
+                <p>From <a href="{{ url_for('myevents') }}" style="display: inline; padding: 0 !important">your events</a> select an event and click the Leave Review button. Then select a player and fill the Create Review form.</p>
+              </div>
+            </li>
+
+          </ul>
+        </div>
+
+      </div>
+    </section><!-- End FAQ Section -->
+
+  </main><!-- End #main -->
+
+{% endblock %}

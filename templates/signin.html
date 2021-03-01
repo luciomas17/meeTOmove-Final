@@ -1,0 +1,74 @@
+{% extends "layout.html" %}
+{% block content %}
+
+  <main id="main">
+
+    <!-- ======= Breadcrumbs ======= -->
+    <section id="breadcrumbs" class="breadcrumbs">
+      <div class="container">
+
+        <ol>
+          <li><a href="{{ url_for('index') }}">Home</a></li>
+          <li>Sign In</li>
+        </ol>
+        <h2>Sign In</h2>
+
+      </div>
+    </section><!-- End Breadcrumbs -->
+
+      <div class="container">
+
+            <!-- ======= Sign In Section ======= -->
+            <section id="contact" class="contact">
+              <div class="container" data-aos="fade-up">
+
+                <div class="section-title">
+                  <h2 class="icon-size"><i class="icofont-sign-in"></i></h2>
+                </div>
+
+                <div class="row justify-content-center">
+
+                  <div class="col-lg-5 col-md-7 d-flex align-items-stretch">
+                    <div class="php-email-form">
+                        <form method="post">
+                            <div class="form-group">
+                              <label>Enter your email</label>
+                              {{ sign_in_form.email(class='form-control') }}
+                              {% for error in sign_in_form.email.errors %}
+                                <div>{{ error }}</div>
+                              {% endfor %}
+                            </div>
+                            <div class="form-group">
+                              <label>Enter your password</label>
+                              {{ sign_in_form.password(class='form-control') }}
+                              {% for error in sign_in_form.password.errors %}
+                                <div>{{ error }}</div>
+                              {% endfor %}
+                            </div>
+                            <div class="form-group">
+                                <label class="checkbox-container">Remember Me
+                                    {{ sign_in_form.remember() }}
+                                    <span class="checkmark"></span>
+                                </label>
+                                {% for error in sign_in_form.remember.errors %}
+                                        <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                          <div class="text-center">
+                              <button type="submit" value='{{ sign_in_form.submit() }}'>Sign In</button>
+                              {{ sign_in_form.hidden_tag() }}</div>
+                            <br><br>
+                            <div class="text-center">Don't have an account? <a href="{{ url_for('signup') }}">Sign Up</a>!</div>
+                        </form>
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+            </section><!-- End Sign In Section -->
+      </div>
+
+  </main><!-- End #main -->
+
+{% endblock %}

@@ -1,0 +1,175 @@
+{% extends "layout.html" %}
+{% block content %}
+
+    <!-- ======= Breadcrumbs ======= -->
+    <section id="breadcrumbs" class="breadcrumbs">
+      <div class="container">
+
+        <ol>
+          <li><a href="{{ url_for('index') }}">Home</a></li>
+          <li><a href="{{ url_for('myaccount') }}">My Account</a></li>
+          <li>Reviews</li>
+        </ol>
+        <h2>Reviews</h2>
+
+      </div>
+    </section><!-- End Breadcrumbs -->
+
+      <div class="container">
+
+            <!-- ======= My Account Section ======= -->
+            <section id="contact" class="contact">
+              <div class="container" data-aos="fade-up">
+
+                <div class="section-title">
+                  <h2>Hi, {{ session['user_name'] }}!</h2>
+                </div>
+
+                <div class="row justify-content-center">
+
+                  <div class="col-4 col-lg-2 d-flex align-items-stretch">
+                    <div class="php-email-form myaccount-links">
+                        <ul>
+                          <li><a href="{{ url_for('myaccount') }}">Info</a></li>
+                          <li class="active"><a href="{{ url_for('reviews') }}">Reviews</a></li>
+                          <li><a href="{{ url_for('myevents') }}">My Events</a></li>
+                          <li><a href="{{ url_for('messages') }}">Messages</a></li>
+                        </ul>
+                    </div>
+                  </div>
+                  <div class="col-12 col-lg-8 d-flex align-items-stretch">
+                    <div class="php-email-form">
+                        <div class="row justify-content-center">
+                            <div class="player-score"><i class="icofont-caret-right"></i>Reviews Made</div>
+                        </div>
+                        <div class="row justify-content-center" style="padding: 3px">
+                            <button id="reviews-made-btn-open" onclick="overlay_on('reviews-made', 'reviews-made-btn-open', 'reviews-made-btn-close')" class="btn-primary"><i class="icofont-rounded-down"></i></button>
+                            <button id="reviews-made-btn-close" onclick="overlay_off('reviews-made', 'reviews-made-btn-open', 'reviews-made-btn-close')" class="btn-primary" style="display: none"><i class="icofont-rounded-up"></i></button>
+                        </div>
+                        <div class="row justify-content-center">
+                            <div id="reviews-made">
+                                {% if reviews_made != None %}
+                                    <div class="row" style="text-align: center; padding-bottom: 15px">
+                                        <div class="col-2"><h6 style="color: rgb(33,190,33) !important;">Event</h6></div>
+                                        <div class="col-2"><h6 style="color: rgb(33,190,33) !important;">User</h6></div>
+                                        <div class="col-4 col-md-3"><h6 style="color: rgb(33,190,33) !important;">Scores</h6></div>
+                                        <div class="col-4 col-md-3"><h6 style="color: rgb(33,190,33) !important;">Notes</h6></div>
+                                        <div class="col-2 d-none d-md-block"><h6 style="color: rgb(33,190,33) !important;">Left On</h6></div>
+                                    </div>
+                                    {% for review in reviews_made %}
+                                        <div class="row" style="text-align: center; padding-bottom: 10px">
+                                            <div class="col-2 d-flex align-items-center justify-content-center"><a href="">{{ review.event_id }}</a></div>
+                                            <div class="col-2 d-flex align-items-center justify-content-center">
+                                                {% for user in users %}
+                                                    {% if user.id == review.reviewed_id %}
+                                                        <a href="">{{ user.name }} {{ user.surname }}</a>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                            <div class="col-4 col-md-3">
+                                                <div class="player-score-container"><span class="player-score-2">Skills</span>
+                                                <span style="font-size: 0.9em">{{ review.skills }}</span></div>
+                                                <div class="player-score-container"><span class="player-score-2">Sportsmanship</span>
+                                                <span style="font-size: 0.9em">{{ review.sportsmanship }}</span></div>
+                                                <div class="player-score-container"><span class="player-score-2">Willingness</span>
+                                                <span style="font-size: 0.9em">{{ review.willingness }}</span></div>
+                                                <div class="player-score-container"><span class="player-score-2">Reliability</span>
+                                                <span style="font-size: 0.9em">{{ review.reliability }}</span></div>
+                                                <div class="player-score-container"><span class="player-score-2">Punctuality</span>
+                                                <span style="font-size: 0.9em">{{ review.punctuality }}</span></div>
+                                            </div>
+                                            <div class="col-4 col-md-3 d-flex align-items-center justify-content-center">
+                                                {% if review.notes == "" %}
+                                                    n.a.
+                                                {% else %}
+                                                    {{ review.notes }}
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-2 d-none d-md-flex align-items-center justify-content-center">{{ review.date_added.strftime('%b %d, %Y') }}</div>
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    n.a.
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="row justify-content-center" style="padding-top: 30px">
+                            <div class="player-score"><i class="icofont-caret-right"></i>Reviews Received</div>
+                        </div>
+                        <div class="row justify-content-center" style="padding: 3px">
+                            <button id="reviews-received-btn-open" onclick="overlay_on('reviews-received', 'reviews-received-btn-open', 'reviews-received-btn-close')" class="btn-primary"><i class="icofont-rounded-down"></i></button>
+                            <button id="reviews-received-btn-close" onclick="overlay_off('reviews-received', 'reviews-received-btn-open', 'reviews-received-btn-close')" class="btn-primary" style="display: none"><i class="icofont-rounded-up"></i></button>
+                        </div>
+                        <div class="row justify-content-center">
+                            <div id="reviews-received">
+                                {% if reviews_received != None %}
+                                    <div class="row" style="text-align: center; padding-bottom: 15px">
+                                        <div class="col-2"><h6 style="color: rgb(33,190,33) !important;">Event</h6></div>
+                                        <div class="col-2"><h6 style="color: rgb(33,190,33) !important;">Left By</h6></div>
+                                        <div class="col-4 col-md-3"><h6 style="color: rgb(33,190,33) !important;">Scores</h6></div>
+                                        <div class="col-4 col-md-3"><h6 style="color: rgb(33,190,33) !important;">Notes</h6></div>
+                                        <div class="col-2 d-none d-md-block"><h6 style="color: rgb(33,190,33) !important;">Left On</h6></div>
+                                    </div>
+                                    {% for review in reviews_received %}
+                                        <div class="row" style="text-align: center; padding-bottom: 10px">
+                                            <div class="col-2 d-flex align-items-center justify-content-center"><a href="">{{ review.event_id }}</a></div>
+                                            <div class="col-2 d-flex align-items-center justify-content-center">
+                                                {% for user in users %}
+                                                    {% if user.id == review.reviewer_id %}
+                                                        <a href="">{{ user.name }} {{ user.surname }}</a>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                            <div class="col-4 col-md-3">
+                                                <div class="player-score-container"><span class="player-score-2">Skills</span>
+                                                <span style="font-size: 0.9em">{{ review.skills }}</span></div>
+                                                <div class="player-score-container"><span class="player-score-2">Sportsmanship</span>
+                                                <span style="font-size: 0.9em">{{ review.sportsmanship }}</span></div>
+                                                <div class="player-score-container"><span class="player-score-2">Willingness</span>
+                                                <span style="font-size: 0.9em">{{ review.willingness }}</span></div>
+                                                <div class="player-score-container"><span class="player-score-2">Reliability</span>
+                                                <span style="font-size: 0.9em">{{ review.reliability }}</span></div>
+                                                <div class="player-score-container"><span class="player-score-2">Punctuality</span>
+                                                <span style="font-size: 0.9em">{{ review.punctuality }}</span></div>
+                                            </div>
+                                            <div class="col-4 col-md-3 d-flex align-items-center justify-content-center">
+                                                {% if review.notes == "" %}
+                                                    n.a.
+                                                {% else %}
+                                                    {{ review.notes }}
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-2 d-none d-md-flex align-items-center justify-content-center">{{ review.date_added.strftime('%b %d, %Y') }}</div>
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    n.a.
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+            </section><!-- End My Account Section -->
+      </div>
+
+    <script>
+        function overlay_on(overlay, btn_open, btn_close) {
+            document.getElementById(overlay).style.display='inline-block';
+            document.getElementById(btn_open).style.display='none';
+            document.getElementById(btn_close).style.display='block';
+        }
+        function overlay_off(overlay, btn_open, btn_close) {
+            document.getElementById(overlay).style.display='none';
+            document.getElementById(btn_open).style.display='block';
+            document.getElementById(btn_close).style.display='none';
+        }
+    </script>
+
+  </main><!-- End #main -->
+
+
+{% endblock %}

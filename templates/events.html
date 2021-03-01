@@ -1,0 +1,257 @@
+{% extends "layout.html" %}
+{% block content %}
+
+  <main id="main">
+
+    <!-- ======= Breadcrumbs ======= -->
+    <section id="breadcrumbs" class="breadcrumbs">
+      <div class="container">
+
+        <ol>
+          <li><a href="{{ url_for('index') }}">Home</a></li>
+          <li>Events</li>
+        </ol>
+        <h2>Events</h2>
+
+      </div>
+    </section><!-- End Breadcrumbs -->
+
+  <!-- ======= New Event Section ======= -->
+    <section id="about" class="about" style="padding-top: 20px !important; padding-bottom: 20px !important;">
+      <div class="container" data-aos="fade-up">
+            {% if session.get('user_id') %}
+            <div class="row content">
+              <div class="col d-flex justify-content-end">
+                  <a href="
+                    {% if session['user_role'] != 3 %}
+                        {{ url_for('create_event') }}
+                    {% else %}
+                        {{ url_for('create_event_sportclub') }}
+                    {% endif %}
+                  " class="btn-learn-more"><i class="icofont-plus-circle"></i> Add New Event</a>
+              </div>
+            </div>
+            {% endif %}
+      </div>
+    </section><!-- End New Event Section -->
+
+
+    <!-- ======= Filter Event Section ======= -->
+    <section id="about" class="about section-bg" style="padding-top: 20px !important; padding-bottom: 10px !important;">
+      <div class="container" data-aos="fade-up">
+
+            <form method="post">
+                <div class="row content d-flex align-items-center justify-content-center">
+                    <div class="col-lg-3 col-md d-flex align-items-center justify-content-center">
+                    <div class="form-group">
+                    <label style="display: flex; padding-bottom: 5px">Select a town</label>
+                       <select class="selectpicker" data-style="btn-outline-primary" data-container="body" name="town">
+                           {% for town in towns  %}
+                               <option value="{{ town.id }}" {% if session.get('town_id') and town.id|string in session.get('town_id') %}selected{% endif %}>{{ town.name }}</option>
+                           {% endfor %}
+                        </select>
+                        {% for error in filter_event_form.town.errors %}
+                            <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    </div>
+
+                    <div class="col-lg-3 col-md d-flex align-items-center justify-content-center">
+                    <div class="form-group">
+                    <label style="display: flex; padding-bottom: 5px">Select a sport</label>
+                    <select class="selectpicker" data-style="btn-outline-primary" data-container="body" name="sport">
+                       <option value="all">All</option>
+                       <option data-divider="true"></option>
+                       {% for sport in sports %}
+                           <option value="{{ sport.id }}" {% if session.get('sport_id') and sport.id|string in session.get('sport_id') %}selected{% endif %}>{{ sport.name }}</option>
+                       {% endfor %}
+                    </select>
+                        {% for error in filter_event_form.sport.errors %}
+                            <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    </div>
+
+                    <div class="col-lg-3 col-md d-flex align-items-center justify-content-center">
+                    <div class="form-group">
+                        <label style="display: flex; color:#f3f5fa; padding-bottom: 5px">###</label>
+                        {{ filter_event_form.submit(class='btn-learn-more') }}
+                        {{ filter_event_form.hidden_tag() }}
+                    </div>
+                    </div>
+                    </div>
+            </form>
+            </div>
+    </section><!-- End Filter Event Section -->
+
+  <!-- ======= Events Section ======= -->
+            <section id="contact" class="contact">
+              <div class="container" data-aos="fade-up">
+
+                <div class="row justify-content-center">
+                    {% if session.get('user_id') == None %}
+                        <div style="text-align: center; padding-bottom: 20px">
+                            <a href="{{ url_for('signin') }}">Sign in</a> to create or join events.
+                        </div>
+                    {% endif %}
+                  <div class="col-lg-12 col-md-12 d-flex align-items-stretch">
+                    <div class="php-email-form">
+                        {% set available = namespace(value=False) %}
+                        {% for event in events_asc %}
+                                {% if event.date_start > now %}
+                                    {% set available.value=True %}
+                                {% endif %}
+                        {% endfor %}
+                        {% if available.value == True %}
+                            <div class="row" style="text-align: center; padding-bottom: 15px">
+                                <div class="col-2 col-md-1"><h5 style="color: rgb(33,190,33) !important;">Town</h5></div>
+                                <div class="col-2 col-md-2"><h5 style="color: rgb(33,190,33) !important;">Sport</h5></div>
+                                <div class="col-2 col-md-2"><h5 style="color: rgb(33,190,33) !important;">Place</h5></div>
+                                <div class="col-2 col-md-2"><h5 style="color: rgb(33,190,33) !important;">Start</h5></div>
+                                <div class="col-2 col-md-2"><h5 style="color: rgb(33,190,33) !important;">End</h5></div>
+                                <div class="col-md-2 d-none d-md-block"><h5 style="color: rgb(33,190,33) !important;">Added By</h5></div>
+                                <div class="col-2 col-md-1"></div>
+                            </div>
+                            {% for event in events_asc %}
+                                {% if event.date_start > now %}
+                                    <div class="row record" style="text-align: center; padding-top: 5px; padding-bottom: 5px">
+                                    <div class="col-2 col-md-1 d-flex align-items-center justify-content-center" onclick="window.location = '{{ url_for('event', id=event.id) }}';">{{ event.town.name }}</div>
+                                    <div class="col-2 d-md-none d-flex align-items-center justify-content-center" onclick="window.location = '{{ url_for('event', id=event.id) }}';"><i class="{{ event.sport.icon }}"></i></div>
+                                    <div class="col-2 d-none d-md-flex align-items-center justify-content-center" onclick="window.location = '{{ url_for('event', id=event.id) }}';"><i class="{{ event.sport.icon }}" style="padding-right: 5px"></i>{{ event.sport.name }}</div>
+                                    <div class="col-2 col-md-2 d-flex align-items-center justify-content-center" onclick="window.location = '{{ url_for('event', id=event.id) }}';">
+                                        {% if event.sport_club_id == None %}
+                                            {{ event.place }}
+                                        {% else %}
+                                            {% for user in users %}
+                                                {% if user.id == event.sport_club_id %}
+                                                    <a href="{{ url_for('sportclub', id=event.sport_club_id) }}">{{ user.name }}</a>
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-2 col-md-2 d-flex align-items-center justify-content-center" onclick="window.location = '{{ url_for('event', id=event.id) }}';">{{ event.date_start.strftime('%b %d, %Y') }}<br>{{ event.date_start.strftime('%H:%M') }}</div>
+                                    <div class="col-2 col-md-2 d-flex align-items-center justify-content-center" onclick="window.location = '{{ url_for('event', id=event.id) }}';">{{ event.date_end.strftime('%b %d, %Y') }}<br>{{ event.date_end.strftime('%H:%M') }}</div>
+                                    <div class="col-md-2 d-none d-md-flex align-items-center justify-content-center" onclick="window.location = '{{ url_for('event', id=event.id) }}';">
+                                        {% if event.creator.role_id !=3 %}
+                                            <a href="{{ url_for('player', id=event.creator.id) }}">{{ event.creator.name }} {{ event.creator.surname }}</a>
+                                        {% else %}
+                                            <a href="{{ url_for('sportclub', id=event.creator.id) }}">{{ event.creator.name }}</a>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-2 col-md-1 d-flex align-items-center justify-content-center">
+                                        {% if session.get('user_id') and session.get('user_role') != 3 and event.creator_id != session.get('user_id') %}
+                                            {% set participant = namespace(value=False) %}
+                                            {% set found_players_number = namespace(value=0) %}
+                                            {% for participating_player in participating_players %}
+                                                {% if participating_player.event_id == event.id %}
+                                                    {% set found_players_number.value = found_players_number.value + 1 %}
+                                                {% endif %}
+                                                {% if participating_player.event_id == event.id and participating_player.user_id != event.creator_id and participating_player.user_id == session['user_id'] %}
+                                                    {% set participant.value = True %}
+                                                {% endif %}
+                                            {% endfor %}
+                                            {% set found_players_number.value = found_players_number.value - 1 %}
+                                            {% if participant.value == False %}
+                                                {% if event.wanted_players_number > found_players_number.value %}
+                                                    <button onclick="window.location = '{{ url_for('handle_join', event_id=event.id) }}'" type="submit" style="padding: 5px 10px 5px 10px !important; font-size: 0.9em; margin-top: 5px">Join</button>
+                                                {% endif %}
+                                            {% else %}
+                                                <button onclick="window.location = '{{ url_for('handle_disjoin', event_id=event.id) }}'" type="submit" style="padding: 5px 10px 5px 10px !important; font-size: 0.9em; margin-top: 5px">Disjoin</button>
+                                            {% endif %}
+                                        {% endif %}
+                                        {% if session.get('user_id') == event.creator_id %}
+                                            {% if session['user_role'] != 3 %}
+                                                <button onclick="window.location = '{{ url_for('edit_event', id=event.id) }}'" type="submit" style="padding: 5px 10px 5px 10px !important; font-size: 0.9em; margin-top: 5px">Edit</button>
+                                            {% else %}
+                                                <button onclick="window.location = '{{ url_for('edit_event_sportclub', id=event.id) }}'" type="submit" style="padding: 5px 10px 5px 10px !important; font-size: 0.9em; margin-top: 5px">Edit</button>
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <div class="row d-flex justify-content-center">No event available.</div>
+                        {% endif %}
+                  </div>
+
+                </div>
+                    <div class="row justify-content-center" style="padding-top: 50px;">
+                        <button id="reviews-made-btn-open" onclick="overlay_on('old-events', 'reviews-made-btn-open', 'reviews-made-btn-close')" class="btn-primary"><i class="icofont-rounded-down"></i> Show Old Events</button>
+                        <button id="reviews-made-btn-close" onclick="overlay_off('old-events', 'reviews-made-btn-open', 'reviews-made-btn-close')" class="btn-primary" style="display: none"><i class="icofont-rounded-up"></i> Hide Old Events</button>
+                    </div>
+                  <div class="col-lg-12 col-md-12 d-flex align-items-stretch">
+                    <div id="old-events" class="php-email-form" style="margin-top: 30px">
+                        {% set past = namespace(value=False) %}
+                        {% for event in events_desc %}
+                                {% if event.date_start <= now %}
+                                    {% set past.value=True %}
+                                {% endif %}
+                        {% endfor %}
+                        {% if past.value == True %}
+                            <div class="row" style="text-align: center; padding-bottom: 15px">
+                                <div class="col-2 col-md-1"><h5 style="color: rgb(33,190,33) !important;">Town</h5></div>
+                                <div class="col-2 col-md-2"><h5 style="color: rgb(33,190,33) !important;">Sport</h5></div>
+                                <div class="col-2 col-md-2"><h5 style="color: rgb(33,190,33) !important;">Place</h5></div>
+                                <div class="col-2 col-md-2"><h5 style="color: rgb(33,190,33) !important;">Start</h5></div>
+                                <div class="col-2 col-md-2"><h5 style="color: rgb(33,190,33) !important;">End</h5></div>
+                                <div class="col-md-2 d-none d-md-block"><h5 style="color: rgb(33,190,33) !important;">Added By</h5></div>
+                                <div class="col-2 col-md-1"></div>
+                            </div>
+                            {% for event in events_desc %}
+                                {% if event.date_start <= now %}
+                                    <div class="row record" style="text-align: center; padding-top: 5px; padding-bottom: 5px">
+                                    <div class="col-2 col-md-1 d-flex align-items-center justify-content-center" onclick="window.location = '{{ url_for('event', id=event.id) }}';">{{ event.town.name }}</div>
+                                    <div class="col-2 d-md-none d-flex align-items-center justify-content-center" onclick="window.location = '{{ url_for('event', id=event.id) }}';"><i class="{{ event.sport.icon }}"></i></div>
+                                    <div class="col-2 d-none d-md-flex align-items-center justify-content-center" onclick="window.location = '{{ url_for('event', id=event.id) }}';"><i class="{{ event.sport.icon }}" style="padding-right: 5px"></i>{{ event.sport.name }}</div>
+                                    <div class="col-2 col-md-2 d-flex align-items-center justify-content-center" onclick="window.location = '{{ url_for('event', id=event.id) }}';">
+                                        {% if event.sport_club_id == None %}
+                                            {{ event.place }}
+                                        {% else %}
+                                            {% for user in users %}
+                                                {% if user.id == event.sport_club_id %}
+                                                    <a href="{{ url_for('sportclub', id=event.sport_club_id) }}">{{ user.name }}</a>
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-2 col-md-2 d-flex align-items-center justify-content-center" onclick="window.location = '{{ url_for('event', id=event.id) }}';">{{ event.date_start.strftime('%b %d, %Y') }}<br>{{ event.date_start.strftime('%H:%M') }}</div>
+                                    <div class="col-2 col-md-2 d-flex align-items-center justify-content-center" onclick="window.location = '{{ url_for('event', id=event.id) }}';">{{ event.date_end.strftime('%b %d, %Y') }}<br>{{ event.date_end.strftime('%H:%M') }}</div>
+                                    <div class="col-md-2 d-none d-md-flex align-items-center justify-content-center" onclick="window.location = '{{ url_for('event', id=event.id) }}';">
+                                        {% if event.creator.role_id !=3 %}
+                                            <a href="{{ url_for('player', id=event.creator.id) }}">{{ event.creator.name }} {{ event.creator.surname }}</a>
+                                        {% else %}
+                                            <a href="{{ url_for('sportclub', id=event.creator.id) }}">{{ event.creator.name }}</a>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-2 col-md-1 d-flex align-items-center justify-content-center"></div>
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <div class="row d-flex justify-content-center">No event available.</div>
+                        {% endif %}
+                  </div>
+
+                </div>
+                </div>
+              </div>
+            </section><!-- End Events Section -->
+
+
+  </main><!-- End #main -->
+
+    <script>
+        function overlay_on(overlay, btn_open, btn_close) {
+            document.getElementById(overlay).style.display='inline-block';
+            document.getElementById(btn_open).style.display='none';
+            document.getElementById(btn_close).style.display='block';
+        }
+        function overlay_off(overlay, btn_open, btn_close) {
+            document.getElementById(overlay).style.display='none';
+            document.getElementById(btn_open).style.display='block';
+            document.getElementById(btn_close).style.display='none';
+        }
+    </script>
+
+{% endblock %}

@@ -1,0 +1,109 @@
+{% extends "layout.html" %}
+{% block content %}
+
+  <main id="main">
+
+    <!-- ======= Breadcrumbs ======= -->
+    <section id="breadcrumbs" class="breadcrumbs">
+      <div class="container">
+
+        <ol>
+          <li><a href="{{ url_for('index') }}">Home</a></li>
+          <li>Players</li>
+        </ol>
+        <h2>Players</h2>
+
+      </div>
+    </section><!-- End Breadcrumbs -->
+
+  <!-- ======= Players Section ======= -->
+            <section id="contact" class="contact">
+              <div class="container" data-aos="fade-up">
+
+                <div class="row justify-content-center">
+                  <div class="col-lg-12 col-md-12 d-flex align-items-center">
+                    <div class="php-email-form">
+                        {% if users|length > 0 %}
+                            <div class="row align-items-center" style="text-align: center; padding-bottom: 15px">
+                                <div class="col-2"></div>
+                                <div class="col-3 col-md-2"><h5 style="color: rgb(33,190,33) !important;">Name</h5></div>
+                                <div class="col-3 col-md-2"><h5 style="color: rgb(33,190,33) !important;">Surname</h5></div>
+                                <div class="col-2"><h5 style="color: rgb(33,190,33) !important;">Player Score</h5></div>
+                                <div class="d-none d-md-block col-md-2"><h5 style="color: rgb(33,190,33) !important;">Favourite Sports</h5></div>
+                                <div class="col-2"></div>
+                            </div>
+                            {% for user in users %}
+                                <div class="row d-flex align-items-center justify-content-center record" style="text-align: center; padding-top: 5px; padding-bottom: 5px" onclick="window.location = '{{ url_for('player', id=user.id) }}';">
+                                    <div class="col-2 d-flex align-items-center justify-content-end">
+                                        {% if user.profile_pic == None %}
+                                            <div class="pic" style="max-width: 100px !important;"><img src="{{ url_for('static', filename="img/users/null.png") }}" class="img-fluid" alt="" style="padding: 15px; border-radius: 50%;"></div>
+                                        {% else %}
+                                            <div class="pic" style="max-width: 100px !important;"><img src="{{ url_for('static', filename="img/users/" + user.id|string + "/" + user.profile_pic|string) }}" class="img-fluid" alt="" style="padding: 15px; border-radius: 50%;"></div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-3 col-md-2">{{ user.name }}</div>
+                                    <div class="col-3 col-md-2">{{ user.surname }}</div>
+                                    <div class="col-2">
+                                        {% set flag = namespace(value=False) %}
+                                        {% set player_score = namespace(value=0) %}
+                                        {% set scores = namespace(skills=0, sportsmanship=0, willingness=0,
+                                            reliability=0, punctuality=0, count=0) %}
+                                        {% if reviews|length > 0 %}
+                                            {% for review in reviews %}
+                                                {% if review.reviewed_id == user.id %}
+                                                    {% set flag.value = True %}
+                                                    {% set scores.skills = scores.skills + review.skills %}
+                                                    {% set scores.sportsmanship = scores.sportsmanship + review.sportsmanship %}
+                                                    {% set scores.willingness = scores.willingness + review.willingness %}
+                                                    {% set scores.reliability = scores.reliability + review.reliability %}
+                                                    {% set scores.punctuality = scores.punctuality + review.punctuality %}
+                                                    {% set scores.count = scores.count + 1 %}
+                                                {% endif %}
+                                            {% endfor %}
+                                            {% if flag.value == True %}
+                                                {% set scores.skills = scores.skills / scores.count %}
+                                                {% set scores.sportsmanship = scores.sportsmanship / scores.count %}
+                                                {% set scores.willingness = scores.willingness / scores.count %}
+                                                {% set scores.reliability = scores.reliability / scores.count %}
+                                                {% set scores.punctuality = scores.punctuality / scores.count %}
+                                                {% set player_score.value = (scores.skills + scores.sportsmanship + scores.willingness +
+                                                        scores.reliability + scores.punctuality) / 5 %}
+                                                <i class="icofont-star"></i> {{ '%.1f'|format(player_score.value) }}
+                                            {% else %}
+                                                n.a.
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
+                                    <div class="d-none d-md-flex col-md-2 justify-content-center align-items-center">
+                                        {% set flag = namespace(value=False) %}
+                                        {% for favourite_sport in favourite_sports %}
+                                            {% if favourite_sport.user_id == user.id %}
+                                                {% set flag.value = True %}
+                                                <i class="{{ favourite_sport.sport.icon }} player-sports" style="font-size: 1.5em !important;"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                        {% if flag.value == False %}
+                                            n.a.
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-2 d-flex align-items-center justify-content-center">
+                                        {% if session.get('user_id') and session.get('user_id') != user.id > 0 %}
+                                            <button type="submit" style="padding: 5px 10px 5px 10px !important; font-size: 0.9em; margin-top: 5px">Send Message</button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="row d-flex justify-content-center">No player available.</div>
+                        {% endif %}
+                  </div>
+
+                </div>
+                </div>
+              </div>
+            </section><!-- End Players Section -->
+
+
+  </main><!-- End #main -->
+
+{% endblock %}

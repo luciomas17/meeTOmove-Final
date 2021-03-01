@@ -1,0 +1,42 @@
+@startuml
+
+actor User
+entity FrontEnd
+participant Event
+participant Town
+participant Sport
+collections JoinedEvent
+database Database
+
+User -> FrontEnd: Event researching
+FrontEnd -> Event: List all events
+Event -> Database: Event.query.all()
+Database --> Event: return Collections<Event>
+Town ->> Database: Town.query.all()
+Database -->> Town: return Collections<Town>
+Event ->> Town: Event.filter_by(Town.id)
+Town -->> Event: return Collections<Event>
+Sport ->> Database: Sport.query.all()
+Database -->> Sport: return Collections<Sport>
+Event ->> Sport: Event.filter_by(Sport.id)
+Sport -->> Event: return Collections<Event>
+Event --> FrontEnd: return events
+FrontEnd --> User: End Event researching
+
+alt Events exist
+User ->> FrontEnd: Details showing
+FrontEnd ->> Event: show_event_details()
+Event -->> FrontEnd: return show_event_details()
+FrontEnd -->> User: End Details showing
+
+alt Events available
+User -> FrontEnd: Event joining
+FrontEnd -> JoinedEvent: joined_event = new JoinedEvent(user_id, event_id)
+JoinedEvent --> FrontEnd: return joined_event
+FrontEnd -> Database: db.add(joined_event)
+Database --> FrontEnd: return 1
+FrontEnd --> User: End Event joining
+end
+end
+
+@enduml

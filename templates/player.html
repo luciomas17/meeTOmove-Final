@@ -1,0 +1,136 @@
+{% extends "layout.html" %}
+{% block content %}
+
+  <main id="main">
+
+    <!-- ======= Breadcrumbs ======= -->
+    <section id="breadcrumbs" class="breadcrumbs">
+      <div class="container">
+
+        <ol>
+          <li><a href="{{ url_for('index') }}">Home</a></li>
+          <li><a href="{{ url_for('players') }}">Players</a></li>
+          <li>{{ player.name }} {{ player.surname }}</li>
+        </ol>
+        <h2>{{ player.name }} {{ player.surname }}</h2>
+
+      </div>
+    </section><!-- End Breadcrumbs -->
+
+  <!-- ======= Player Section ======= -->
+            <section id="contact" class="contact">
+              <div class="container" data-aos="fade-up">
+
+                <div class="row justify-content-center">
+                  <div class="col-lg-12 col-md-12 d-flex align-items-center">
+                    <div class="row php-email-form">
+                        <div class="col-12 col-md-6 text-center">
+                            <div class="row justify-content-center">
+                                {% if player.profile_pic == None %}
+                                   <div class="pic"><img src="{{ url_for('static', filename="img/users/null.png") }}" class="img-fluid" alt="" style="padding: 15px; border-radius: 50%;"></div>
+                                {% else %}
+                                   <div class="pic"><img src="{{ url_for('static', filename='img/users/' + player.id|string + '/' + player.profile_pic|string) }}" class="img-fluid" alt="" style="padding: 15px; border-radius: 50%;"></div>
+                                {% endif %}
+                            </div>
+                            <br>
+                            <div class="row justify-content-center" style="font-size: 1.1em">{{ player.name }} {{ player.surname }}</div>
+                            <div class="row justify-content-center">{{ player.email }}</div>
+                            <br><br>
+                            <div class="row justify-content-center player-score-container">
+                                <div class="player-score"><i class="icofont-star"></i> Player Score</div>
+                                <span>{% if player_score != 'n.a.' %}{{ '%.1f'|format(player_score) }}{% else %}{{ player_score }}{% endif %}</span>
+                            </div>
+                            <div class="row justify-content-center" style="padding-top: 5px">
+                                <div class="col-6 text-center">
+                                    <div class="player-score-container score-hover"><span class="player-score-2"><i class="icofont-star"></i> Skills</span>
+                                    <span style="font-size: 0.9em">{% if player_score != 'n.a.' %}{{ '%.1f'|format(skills) }}{% else %}{{ skills }}{% endif %}</span></div>
+                                    <div class="player-score-container score-hover"><span class="player-score-2"><i class="icofont-star"></i> Sportsmanship</span>
+                                    <span style="font-size: 0.9em">{% if player_score != 'n.a.' %}{{ '%.1f'|format(sportsmanship) }}{% else %}{{ sportsmanship }}{% endif %}</span></div>
+                                    <div class="player-score-container score-hover"><span class="player-score-2"><i class="icofont-star"></i> Willingness</span>
+                                    <span style="font-size: 0.9em">{% if player_score != 'n.a.' %}{{ '%.1f'|format(willingness) }}{% else %}{{ willingness }}{% endif %}</span></div>
+                                    <div class="player-score-container score-hover"><span class="player-score-2"><i class="icofont-star"></i> Reliability</span>
+                                    <span style="font-size: 0.9em">{% if player_score != 'n.a.' %}{{ '%.1f'|format(reliability) }}{% else %}{{ reliability }}{% endif %}</span></div>
+                                    <div class="player-score-container score-hover"><span class="player-score-2"><i class="icofont-star"></i> Punctuality</span>
+                                    <span style="font-size: 0.9em">{% if player_score != 'n.a.' %}{{ '%.1f'|format(punctuality) }}{% else %}{{ punctuality }}{% endif %}</span></div>
+                                </div>
+                            </div>
+                            <br><br>
+                            <div class="row justify-content-center">
+                                <div class="player-score"><i class="icofont-caret-right"></i>Favourite Sports</div>
+                            </div>
+                            <div class="row d-flex justify-content-center align-items-center" style="padding-top: 10px">
+                                {% if favourite_sports != None %}
+                                    {% for favourite_sport in favourite_sports %}
+                                        <i class="{{ favourite_sport.sport.icon }} player-sports"></i>
+                                    {% endfor %}
+                                {% else %}
+                                    n.a.
+                                {% endif %}
+                            </div>
+
+                    </div>
+                        <div class="col-12 col-md-6">
+                            {% if session.get('user_id') and session.get('user_id') != player.id %}
+                            <div class="row d-flex justify-content-center align-items-center" style="padding-top: 40px">
+                                <button type="submit" style="padding: 5px 10px 5px 10px !important; font-size: 0.9em; margin-top: 5px">Send Message</button>
+                            </div>
+                            {% endif %}
+                            <div class="row justify-content-center" style="padding-top: 40px; padding-bottom: 20px;">
+                            <div class="row justify-content-center">
+                                <div class="player-score"><i class="icofont-caret-right"></i>Reviews Received</div>
+                            </div>
+                            <div id="reviews-made" style="display: inline-block">
+                                {% if reviews_received != None %}
+                                    <div class="row" style="text-align: center; padding-bottom: 15px">
+                                        <div class="col-2"><h6 style="color: rgb(33,190,33) !important;">Event</h6></div>
+                                        <div class="col-3"><h6 style="color: rgb(33,190,33) !important;">Written By</h6></div>
+                                        <div class="col-4"><h6 style="color: rgb(33,190,33) !important;">Scores</h6></div>
+                                        <div class="col-3"><h6 style="color: rgb(33,190,33) !important;">Notes</h6></div>
+                                    </div>
+                                    {% for review in reviews_received %}
+                                        <div class="row" style="text-align: center; padding-bottom: 10px">
+                                            <div class="col-2 d-flex align-items-center justify-content-center"><a href="">{{ review.event_id }}</a></div>
+                                            <div class="col-3 d-flex align-items-center justify-content-center">
+                                                {% for user in users %}
+                                                    {% if user.id == review.reviewer_id %}
+                                                        <a href="{% if user.role !=3 %} {{ url_for('player', id=user.id) }} {% endif %}">{{ user.name }} {{ user.surname }}</a>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                            <div class="col-4">
+                                                <div class="player-score-container"><span class="player-score-2">Skills</span>
+                                                <span style="font-size: 0.9em">{{ review.skills }}</span></div>
+                                                <div class="player-score-container"><span class="player-score-2">Sportsmanship</span>
+                                                <span style="font-size: 0.9em">{{ review.sportsmanship }}</span></div>
+                                                <div class="player-score-container"><span class="player-score-2">Willingness</span>
+                                                <span style="font-size: 0.9em">{{ review.willingness }}</span></div>
+                                                <div class="player-score-container"><span class="player-score-2">Reliability</span>
+                                                <span style="font-size: 0.9em">{{ review.reliability }}</span></div>
+                                                <div class="player-score-container"><span class="player-score-2">Punctuality</span>
+                                                <span style="font-size: 0.9em">{{ review.punctuality }}</span></div>
+                                            </div>
+                                            <div class="col-3 d-flex align-items-center justify-content-center">
+                                                {% if review.notes == "" %}
+                                                    n.a.
+                                                {% else %}
+                                                    {{ review.notes }}
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="row d-flex justify-content-center">No review received.</div>
+                                {% endif %}
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+              </div>
+            </section><!-- End Player Section -->
+
+
+  </main><!-- End #main -->
+
+{% endblock %}

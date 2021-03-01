@@ -1,0 +1,51 @@
+{% extends 'layout.html' %}
+{% block content %}
+
+    <!-- ======= Breadcrumbs ======= -->
+    <section id="breadcrumbs" class="breadcrumbs">
+      <div class="container">
+
+        <ol>
+          <li><a href="{{ url_for('index') }}">Home</a></li>
+          <li><a href="{{ url_for('myaccount') }}">My Account</a></li>
+          <li>Info</li>
+        </ol>
+        <h2>Info</h2>
+
+      </div>
+    </section><!-- End Breadcrumbs -->
+
+    <div class="container">
+
+    <!-- ======= My Account Section ======= -->
+    <section id="contact" class="contact">
+      <div class="container" data-aos="fade-up">
+
+        <div class="row justify-content-center">
+
+        <div class="col-12 col-lg-8 d-flex align-items-stretch justify-content-center">
+            <div class="php-email-form">
+                <div class="text-center">
+
+                <form method="post" enctype="multipart/form-data" action="">
+                    <div class="form-group">
+                        <label>Choose File from Disk...</label><br>
+                        {{ upload_form.hidden_tag() }}<br>
+                        {{ upload_form.file }}
+                    </div>
+                    <button type="submit" value=' {{ upload_form.upload() }}'>Upload</button>
+                </form>
+
+                </div>
+            </div>
+        </div>
+
+      </div>
+      </div>
+    </section><!-- End My Account Section -->
+    </div>
+
+
+  </main><!-- End #main -->
+
+{% endblock %}

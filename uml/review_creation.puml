@@ -1,0 +1,42 @@
+@startuml
+
+actor User
+entity FrontEnd
+collections JoinedEvent
+participant Review
+database Database
+
+User -> FrontEnd: Reviewable users researching
+FrontEnd -> JoinedEvent: List all joined events
+JoinedEvent -> Database: JoinedEvent.filter_by(ReviewerUser.id)
+Database --> JoinedEvent: return Collections<JoinedEvent>
+JoinedEvent --> FrontEnd: return joined events
+
+FrontEnd -> JoinedEvent: List all participant users
+JoinedEvent -> Database: JoinedEvent.filter_by(JoinedEvent.event_id)
+Database --> JoinedEvent: return Collections<User>
+JoinedEvent --> FrontEnd: return participant users
+FrontEnd --> User: End Reviewable users researching
+
+alt JoinedEvents exist
+User -> FrontEnd: Reviewed user selection
+FrontEnd --> User: End Reviewed user selection
+
+
+User -> FrontEnd: Review form filling
+FrontEnd -> FrontEnd: form.validate_on_submit()
+alt All Fields required
+FrontEnd -> Review: review = new Review(reviewer_id, reviewed_id, event_id)
+Review --> FrontEnd: return review
+alt Review not exists
+FrontEnd -> Database: db.add(review)
+Database --> FrontEnd: return 1
+else Review already exists
+Database --> FrontEnd: return 0
+end
+end
+FrontEnd --> User: End Review form filling
+end
+
+
+@enduml

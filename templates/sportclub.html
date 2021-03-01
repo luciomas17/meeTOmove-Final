@@ -1,0 +1,130 @@
+{% extends "layout.html" %}
+{% block content %}
+
+  <main id="main">
+
+    <!-- ======= Breadcrumbs ======= -->
+    <section id="breadcrumbs" class="breadcrumbs">
+      <div class="container">
+
+        <ol>
+          <li><a href="{{ url_for('index') }}">Home</a></li>
+          <li><a href="{{ url_for('sportclubs') }}">Sport Clubs</a></li>
+          <li>{{ sportclub.name }}</li>
+        </ol>
+        <h2>{{ sportclub.name }}</h2>
+
+      </div>
+    </section><!-- End Breadcrumbs -->
+
+  <!-- ======= Sport Club Section ======= -->
+            <section id="contact" class="contact">
+              <div class="container" data-aos="fade-up">
+
+                <div class="row justify-content-center">
+                  <div class="col-lg-12 col-md-12 d-flex align-items-center">
+                    <div class="row php-email-form">
+                        <div class="col-12 col-md-6 text-center">
+                            <div class="row justify-content-center">
+                                {% if sportclub.profile_pic == None %}
+                                   <div class="pic"><img src="{{ url_for('static', filename="img/users/null.png") }}" class="img-fluid" alt="" style="padding: 15px; border-radius: 50%;"></div>
+                                {% else %}
+                                   <div class="pic"><img src="{{ url_for('static', filename='img/users/' + sportclub.id|string + '/' + sportclub.profile_pic|string) }}" class="img-fluid" alt="" style="padding: 15px; border-radius: 50%;"></div>
+                                {% endif %}
+                            </div>
+                            <br>
+                            <div class="row justify-content-center" style="font-size: 1.1em">{{ sportclub.name }}</div>
+                            <div class="row justify-content-center">{{ sportclub.email }}</div>
+                            <br><br>
+                            <div class="row justify-content-center" style="padding: 5px">
+                                    <div class="player-score"><i class="icofont-caret-right"></i>Details</div>
+                                </div>
+                                    <div class="player-score-container score-hover"><span class="player-score">Town</span>
+                                    <span>
+                                        {% if details|length != 0 %}
+                                            {{ details[0].town.name }}
+                                        {% else %}
+                                            n.a.
+                                        {% endif %}
+                                    </span>
+                                    </div>
+                                    <div class="player-score-container score-hover"><span class="player-score">Address</span>
+                                    <span>
+                                        {% if details|length != 0 %}
+                                            {{ details[0].address }}
+                                        {% else %}
+                                            n.a.
+                                        {% endif %}
+                                    </span>
+                                    </div>
+                                    <div class="player-score-container score-hover"><span class="player-score">Zip Code</span>
+                                    <span>
+                                        {% if details|length != 0 %}
+                                            {{ details[0].zip }}
+                                        {% else %}
+                                            n.a.
+                                        {% endif %}
+                                    </span>
+                                    </div>
+                            <br><br>
+                            <div class="row justify-content-center">
+                                <div class="player-score"><i class="icofont-caret-right"></i>Practicable Sports</div>
+                            </div>
+                            <div class="row d-flex justify-content-center align-items-center" style="padding-top: 10px">
+                                {% if practicable_sports != None %}
+                                    {% for practicable_sports in practicable_sports %}
+                                        <i class="{{ practicable_sports.sport.icon }} player-sports"></i>
+                                    {% endfor %}
+                                {% else %}
+                                    n.a.
+                                {% endif %}
+                            </div>
+
+                    </div>
+                        <div class="col-12 col-md-6">
+                            {% if session.get('user_id') and session.get('user_id') != sportclub.id %}
+                            <div class="row d-flex justify-content-center align-items-center" style="padding-top: 40px">
+                                <button type="submit" style="padding: 5px 10px 5px 10px !important; font-size: 0.9em; margin-top: 5px">Send Message</button>
+                            </div>
+                            {% endif %}
+                            <div class="row justify-content-center" style="padding-top: 40px; padding-bottom: 20px;">
+                            <div class="row justify-content-center">
+                                <div class="player-score"><i class="icofont-caret-right"></i>Events Created</div>
+                            </div>
+                            <div id="reviews-made" style="display: inline-block">
+                                {% if events_created|length > 0 %}
+                                    <div class="row" style="text-align: center; padding-bottom: 15px">
+                                        <div class="col-2"><h5 style="color: rgb(33,190,33) !important;">Sport</h5></div>
+                                        <div class="col-4"><h5 style="color: rgb(33,190,33) !important;">Start</h5></div>
+                                        <div class="col-4"><h5 style="color: rgb(33,190,33) !important;">End</h5></div>
+                                        <div class="col-2"></div>
+                                    </div>
+                                    {% for event in events_created %}
+                                        <div class="row" style="text-align: center; padding-bottom: 10px">
+                                            <div class="col-2 d-md-none d-flex align-items-center justify-content-center"><i class="{{ event.sport.icon }}"></i></div>
+                                            <div class="col-2 d-none d-md-flex align-items-center justify-content-center"><i class="{{ event.sport.icon }}" style="padding-right: 5px"></i>{{ event.sport.name }}</div>
+                                            <div class="col-4 d-flex align-items-center justify-content-center">{{ event.date_start }}</div>
+                                            <div class="col-4 d-flex align-items-center justify-content-center">{{ event.date_end }}</div>
+                                            <div class="col-2 d-flex align-items-center justify-content-center">
+                                                {% if session.get('user_role') !=3 and session.get('user_id') != sportclub.id and event.wanted_players_number > 0 %}
+                                                    <button type="submit" style="padding: 5px 10px 5px 10px !important; font-size: 0.9em; margin-top: 5px">Join</button>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="row d-flex justify-content-center">No event created.</div>
+                                {% endif %}
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+              </div>
+            </section><!-- End Sport Club Section -->
+
+
+  </main><!-- End #main -->
+
+{% endblock %}

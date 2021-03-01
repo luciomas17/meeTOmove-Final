@@ -1,0 +1,22 @@
+@startuml
+
+actor Guest
+entity FrontEnd
+participant User
+database Database
+
+Guest -> FrontEnd: Sign Up Form filling
+FrontEnd -> FrontEnd: form.validate_on_submit()
+alt All fields required
+FrontEnd -> User: user = new User(args)
+User --> FrontEnd: return user
+FrontEnd -> Database: db.add(user)
+alt Email not exists
+Database --> FrontEnd: return 1
+else Email already exists
+Database --> FrontEnd: return 0
+end
+end
+FrontEnd --> Guest: End Sign Up Form filling
+
+@enduml

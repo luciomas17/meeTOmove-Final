@@ -1,0 +1,173 @@
+{% extends "layout.html" %}
+{% block content %}
+
+  <main id="main">
+
+    <!-- ======= Breadcrumbs ======= -->
+    <section id="breadcrumbs" class="breadcrumbs">
+      <div class="container">
+
+        <ol>
+          <li><a href="{{ url_for('index') }}">Home</a></li>
+          <li><a href="{{ url_for('events') }}">Events</a></li>
+          <li>Add New Event</li>
+        </ol>
+        <h2>Add New Event</h2>
+
+      </div>
+    </section><!-- End Breadcrumbs -->
+
+  <!-- ======= Add New Section ======= -->
+            <section id="contact" class="contact">
+              <div class="container" data-aos="fade-up">
+
+                <div class="row justify-content-center">
+                  <div class="col-lg-12 col-md-12 d-flex align-items-stretch">
+                    <div class="php-email-form">
+                        <div class="section-title">
+                          <h2 class="icon-size"><i class="icofont-meeting-add"></i></h2>
+                        </div>
+                        <form method="post">
+                                <div class="row d-flex justify-content-center">
+                                <div class="col-6 col-md-4 d-flex align-items-center justify-content-center">
+                                    <div class="form-group text-center">
+                                    <div style="padding-bottom: 10px">Select a town</div>
+                                       <select class="selectpicker" data-style="btn-outline-secondary" data-container="body" name="town">
+                                           {% for town in towns  %}
+                                               <option value="{{ town.id }}">{{ town.name }}</option>
+                                           {% endfor %}
+                                        </select>
+                                        {% for error in create_event_form.town.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-4 d-flex align-items-center justify-content-center">
+                                    <div class="form-group text-center">
+                                       <div style="padding-bottom: 10px">Select a sport</div>
+                                       <select id="sport-select" class="selectpicker" data-style="btn-outline-secondary" data-container="body" name="sport" onchange="handle_sport_clubs()">
+                                           <option value="other"></option>
+                                            <option data-divider="true"></option>
+                                           {% for sport in sports  %}
+                                               <option value="{{ sport.id }}" {% if session.get('sport_selected') and session['sport_selected'] == sport.id %}selected{% endif %}>{{ sport.name }}</option>
+                                           {% endfor %}
+                                        </select>
+                                        {% for error in create_event_form.sport.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                                <div class="row d-flex justify-content-center">
+                                    <div class="col-6 col-md-4 d-flex align-items-center justify-content-center">
+                                        <div id="sport-club-group" class="form-group text-center">
+                                        <div style="padding-bottom: 10px">Select a place</div>
+                                        <select id="sport-club-select" class="selectpicker" data-style="btn-outline-secondary" data-container="body" name="sport_club" onchange="handle_place()">
+                                            {% if session.get('sport_selected') %}
+                                                <option value="other">Other</option>
+                                                <option data-divider="true"></option>
+                                                {% for sportclub in sportclubs %}
+                                                    {% for practcable_sport in practicable_sports %}
+                                                        {% if sportclub.id == practcable_sport.user_id and practcable_sport.sport_id == session['sport_selected'] %}
+                                                            <option value="{{ practcable_sport.user_id }}">{{ sportclub.name }}</option>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                {% endfor %}
+                                            {% else %}
+                                                <option value="other"></option>
+                                                <option data-divider="true"></option>
+                                            {% endif %}
+                                            {% for error in create_event_form.sport_club.errors %}
+                                                <div>{{ error }}</div>
+                                            {% endfor %}
+                                        </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 col-md-4 d-flex align-items-center justify-content-center">
+                                        <div id="place-group" class="form-group text-center">
+                                        <div style="padding-bottom: 10px">Type a place</div>
+                                            {{ create_event_form.place(class='form-control', id="place-field", style="text-align: center; min-width: 220px") }}
+                                            {% for error in create_event_form.place.errors %}
+                                                <div>{{ error }}</div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row d-flex justify-content-center">
+                                    <div class="col-6 col-md-4 d-flex align-items-center justify-content-center">
+                                        <div id="sport-club-group" class="form-group text-center">
+                                        <div style="padding-bottom: 10px">Type a start date</div>
+                                            {{ create_event_form.date_start(class="form-control", id="date_start_widget", style="text-align: center; min-width: 220px") }}
+                                            {% for error in create_event_form.date_start.errors %}
+                                                <div>{{ error }}</div>
+                                            {% endfor %}
+                                        </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 col-md-4 d-flex align-items-center justify-content-center">
+                                        <div id="sport-club-group" class="form-group text-center">
+                                        <div style="padding-bottom: 10px">Type an end date</div>
+                                            {{ create_event_form.date_end(class="form-control", id="date_end_widget", style="text-align: center; min-width: 220px") }}
+                                            {% for error in create_event_form.date_end.errors %}
+                                                <div>{{ error }}</div>
+                                            {% endfor %}
+                                        </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row d-flex justify-content-center">
+                                    <div class="col d-flex align-items-center justify-content-center">
+                                        <div class="form-group text-center">
+                                        <div style="padding-bottom: 10px">Select a wanted players number</div>
+                                        <select class="selectpicker" data-style="btn-outline-secondary" data-container="body" name="wanted_players_number">
+                                               {% for n in range(1, 11)  %}
+                                                   <option value={{ n }}>{{ n }}</option>
+                                               {% endfor %}
+                                            </select>
+                                        {% for error in create_event_form.wanted_players_number.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <br><br><br>
+                                <div class="row d-flex justify-content-center" style="padding-bottom: 10px">
+                                    <div class="col d-flex align-items-center justify-content-center">
+                                        <button type="submit" value='{{ create_event_form.submit() }}'>Add Event</button>
+                                        {{ create_event_form.hidden_tag() }}
+                                    </div>
+                                </div>
+                        </form>
+                        </div>
+                  </div>
+
+                </div>
+                </div>
+              </div>
+            </section><!-- End Add New Section -->
+
+
+  </main><!-- End #main -->
+
+    <script>
+        function handle_sport_clubs() {
+            var sport_id = document.getElementById('sport-select').value;
+            window.location = '{{ url_for ('handle_sport_clubs', sport_id='xxx') }}'.replace("xxx", sport_id);
+        }
+
+        function handle_place() {
+            var sport_club = document.getElementById('sport-club-select').value;
+            if (sport_club != 'other') {
+                document.getElementById('place-group').style.cssText = "pointer-events: none; opacity: 0.5; min-width: 50%";
+                document.getElementById('place-field').style.cssText = "text-align: center; min-width: 220px; color: transparent"
+                document.getElementById('place-field').value = sport_club;
+            } else {
+                document.getElementById('place-group').style.cssText = "pointer-events: default; opacity: 1; min-width: 50%";
+                document.getElementById('place-field').style.cssText = "text-align: center; min-width: 220px; color: #444444"
+                document.getElementById('place-field').value = "";
+            }
+        }
+    </script>
+
+
+{% endblock %}

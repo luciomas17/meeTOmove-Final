@@ -1,0 +1,277 @@
+{% extends "layout.html" %}
+{% block content %}
+
+    <!-- ======= Breadcrumbs ======= -->
+    <section id="breadcrumbs" class="breadcrumbs">
+      <div class="container">
+
+        <ol>
+          <li><a href="{{ url_for('index') }}">Home</a></li>
+          <li><a href="{{ url_for('myaccount') }}">My Account</a></li>
+          <li>My Events</li>
+        </ol>
+        <h2>My Events</h2>
+
+      </div>
+    </section><!-- End Breadcrumbs -->
+
+      <div class="container">
+
+            <!-- ======= My Account Section ======= -->
+            <section id="contact" class="contact">
+              <div class="container" data-aos="fade-up">
+
+                <div class="section-title">
+                  <h2>Hi, {{ session['user_name'] }}!</h2>
+                </div>
+
+                <div class="row justify-content-center">
+
+                  <div class="col-4 col-lg-2 d-flex align-items-stretch">
+                    <div class="php-email-form myaccount-links">
+                        <ul>
+                          <li><a href="{{ url_for('myaccount') }}">Info</a></li>
+                          {% if session['user_role'] != 3 %}
+                          <li><a href="{{ url_for('reviews') }}">Reviews</a></li>
+                          {% endif %}
+                          <li class="active"><a href="{{ url_for('myevents') }}">My Events</a></li>
+                          <li><a href="{{ url_for('messages') }}">Messages</a></li>
+                        </ul>
+                    </div>
+                  </div>
+                  <div class="col-12 col-lg-8 d-flex align-items-stretch">
+                    <div class="php-email-form">
+                        {% if session['user_role'] != 3 %}
+                        <div class="row justify-content-center">
+                            <div class="player-score"><i class="icofont-caret-right"></i>Created Events</div>
+                        </div>
+                        <div class="row justify-content-center" style="padding: 3px">
+                            <button id="reviews-made-btn-open" onclick="overlay_on('reviews-made', 'reviews-made-btn-open', 'reviews-made-btn-close')" class="btn-primary"><i class="icofont-rounded-down"></i></button>
+                            <button id="reviews-made-btn-close" onclick="overlay_off('reviews-made', 'reviews-made-btn-open', 'reviews-made-btn-close')" class="btn-primary" style="display: none"><i class="icofont-rounded-up"></i></button>
+                        </div>
+                        <div class="row justify-content-center">
+                            <div id="reviews-made">
+                                {% if events_created|length > 0 %}
+                                    <div class="row" style="text-align: center; padding-bottom: 15px">
+                                        <div class="col-2"><h5 style="color: rgb(33,190,33) !important;">Town</h5></div>
+                                        <div class="col-3"><h5 style="color: rgb(33,190,33) !important;">Sport</h5></div>
+                                        <div class="col-3"><h5 style="color: rgb(33,190,33) !important;">Place</h5></div>
+                                        <div class="col-2"><h5 style="color: rgb(33,190,33) !important;">Start</h5></div>
+                                        <div class="col-2"><h5 style="color: rgb(33,190,33) !important;">End</h5></div>
+                                    </div>
+                                    {% for event in events_created %}
+                                        {% if event.date_start > now %}
+                                            <div onclick="window.location = '{{ url_for('event', id=event.id) }}';" class="row record" style="text-align: center; padding-top: 5px; padding-bottom: 5px">
+                                            <div class="col-2 d-flex align-items-center justify-content-center">{{ event.town.name }}</div>
+                                            <div class="col-3 d-flex align-items-center justify-content-center"><i class="{{ event.sport.icon }}" style="padding-right: 5px"></i>{{ event.sport.name }}</div>
+                                            <div class="col-3 d-flex align-items-center justify-content-center">
+                                                {% if event.sport_club_id == None %}
+                                                    {{ event.place }}
+                                                {% else %}
+                                                    {% for user in users %}
+                                                        {% if user.id == event.sport_club_id %}
+                                                            <a href="{{ url_for('sportclub', id=event.sport_club_id) }}">{{ user.name }}</a>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-2 d-flex align-items-center justify-content-center">{{ event.date_start.strftime('%b %d, %Y') }}<br>{{ event.date_start.strftime('%H:%M') }}</div>
+                                            <div class="col-2 d-flex align-items-center justify-content-center">{{ event.date_end.strftime('%b %d, %Y') }}<br>{{ event.date_end.strftime('%H:%M') }}</div>
+                                        </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="row d-flex justify-content-center">No event created.</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="row justify-content-center" style="padding-top: 30px">
+                            <div class="player-score"><i class="icofont-caret-right"></i>Joined Events</div>
+                        </div>
+                        <div class="row justify-content-center" style="padding: 3px">
+                            <button id="reviews-received-btn-open" onclick="overlay_on('reviews-received', 'reviews-received-btn-open', 'reviews-received-btn-close')" class="btn-primary"><i class="icofont-rounded-down"></i></button>
+                            <button id="reviews-received-btn-close" onclick="overlay_off('reviews-received', 'reviews-received-btn-open', 'reviews-received-btn-close')" class="btn-primary" style="display: none"><i class="icofont-rounded-up"></i></button>
+                        </div>
+                        <div class="row justify-content-center">
+                            <div id="reviews-received">
+                                {% set flag = namespace(value=False) %}
+                                {% for joined_event in joined_events %}
+                                    {% if joined_event.user_id == session['user_id'] %}
+                                        {% set flag.value=True %}
+                                    {% endif %}
+                                {% endfor %}
+                                {% if flag.value == True %}
+                                    <div class="row" style="text-align: center; padding-bottom: 15px">
+                                        <div class="col-2"><h5 style="color: rgb(33,190,33) !important;">Town</h5></div>
+                                        <div class="col-3"><h5 style="color: rgb(33,190,33) !important;">Sport</h5></div>
+                                        <div class="col-3"><h5 style="color: rgb(33,190,33) !important;">Place</h5></div>
+                                        <div class="col-2"><h5 style="color: rgb(33,190,33) !important;">Start</h5></div>
+                                        <div class="col-2"><h5 style="color: rgb(33,190,33) !important;">End</h5></div>
+                                    </div>
+                                    {% for event in events %}
+                                        {% for joined_event in joined_events %}
+                                            {% if joined_event.user_id == session['user_id'] and event.date_start > now %}
+                                                {% if joined_event.event_id == event.id and event.creator_id != session['user_id'] %}
+                                                    <div onclick="window.location = '{{ url_for('event', id=joined_event.event_id) }}';" class="row record" style="text-align: center; padding-top: 5px; padding-bottom: 5px">
+                                            <div class="col-2 d-flex align-items-center justify-content-center">{{ event.town.name }}</div>
+                                            <div class="col-3 d-flex align-items-center justify-content-center"><i class="{{ event.sport.icon }}" style="padding-right: 5px"></i>{{ event.sport.name }}</div>
+                                            <div class="col-3 d-flex align-items-center justify-content-center">
+                                                {% if event.sport_club_id == None %}
+                                                    {{ event.place }}
+                                                {% else %}
+                                                    {% for user in users %}
+                                                        {% if user.id == event.sport_club_id %}
+                                                            <a href="{{ url_for('sportclub', id=event.sport_club_id) }}">{{ user.name }}</a>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-2 d-flex align-items-center justify-content-center">{{ joined_event.event.date_start.strftime('%b %d, %Y') }}<br>{{ joined_event.event.date_start.strftime('%H:%M') }}</div>
+                                            <div class="col-2 d-flex align-items-center justify-content-center">{{ joined_event.event.date_end.strftime('%b %d, %Y') }}<br>{{ joined_event.event.date_end.strftime('%H:%M') }}</div>
+                                        </div>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="row d-flex justify-content-center">No event joined.</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="row justify-content-center" style="padding-top: 30px">
+                            <div class="player-score"><i class="icofont-caret-right"></i>Old Events</div>
+                        </div>
+                        <div class="row justify-content-center" style="padding: 3px">
+                            <button id="old-events-btn-open" onclick="overlay_on('old-events', 'old-events-btn-open', 'old-events-btn-close')" class="btn-primary"><i class="icofont-rounded-down"></i></button>
+                            <button id="old-events-btn-close" onclick="overlay_off('old-events', 'old-events-btn-open', 'old-events-btn-close')" class="btn-primary" style="display: none"><i class="icofont-rounded-up"></i></button>
+                        </div>
+                        <div class="row justify-content-center">
+                            <div id="old-events">
+                                {% set flag = namespace(value=False) %}
+                                {% for joined_event in joined_events %}
+                                    {% if joined_event.user_id == session['user_id'] %}
+                                        {% set flag.value=True %}
+                                    {% endif %}
+                                {% endfor %}
+                                {% if flag.value == True %}
+                                    <div class="row" style="text-align: center; padding-bottom: 15px">
+                                        <div class="col-2"><h5 style="color: rgb(33,190,33) !important;">Town</h5></div>
+                                        <div class="col-3"><h5 style="color: rgb(33,190,33) !important;">Sport</h5></div>
+                                        <div class="col-3"><h5 style="color: rgb(33,190,33) !important;">Place</h5></div>
+                                        <div class="col-2"><h5 style="color: rgb(33,190,33) !important;">Start</h5></div>
+                                        <div class="col-2"><h5 style="color: rgb(33,190,33) !important;">End</h5></div>
+                                    </div>
+                                    {% for event in events_desc %}
+                                        {% for joined_event in joined_events %}
+                                            {% if joined_event.user_id == session['user_id'] and event.date_start < now %}
+                                                {% if joined_event.event_id == event.id %}
+                                                    <div onclick="window.location = '{{ url_for('event', id=joined_event.event_id) }}';" class="row record" style="text-align: center; padding-top: 5px; padding-bottom: 5px">
+                                            <div class="col-2 d-flex align-items-center justify-content-center">{{ event.town.name }}</div>
+                                            <div class="col-3 d-flex align-items-center justify-content-center"><i class="{{ event.sport.icon }}" style="padding-right: 5px"></i>{{ event.sport.name }}</div>
+                                            <div class="col-3 d-flex align-items-center justify-content-center">
+                                                {% if event.sport_club_id == None %}
+                                                    {{ event.place }}
+                                                {% else %}
+                                                    {% for user in users %}
+                                                        {% if user.id == event.sport_club_id %}
+                                                            <a href="{{ url_for('sportclub', id=event.sport_club_id) }}">{{ user.name }}</a>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-2 d-flex align-items-center justify-content-center">{{ joined_event.event.date_start.strftime('%b %d, %Y') }}<br>{{ joined_event.event.date_start.strftime('%H:%M') }}</div>
+                                            <div class="col-2 d-flex align-items-center justify-content-center">{{ joined_event.event.date_end.strftime('%b %d, %Y') }}<br>{{ joined_event.event.date_end.strftime('%H:%M') }}</div>
+                                        </div>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="row d-flex justify-content-center">No event joined.</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% else %}
+                                {% set flag = namespace(value=False) %}
+                                {% for event in events_created %}
+                                    {% if event.date_start > now %}
+                                        {% set flag.value=True %}
+                                    {% endif %}
+                                {% endfor %}
+                                {% if flag.value %}
+                                    <div class="row" style="text-align: center; padding-bottom: 15px">
+                                        <div class="col-4"><h5 style="color: rgb(33,190,33) !important;">Sport</h5></div>
+                                        <div class="col-4"><h5 style="color: rgb(33,190,33) !important;">Start</h5></div>
+                                        <div class="col-4"><h5 style="color: rgb(33,190,33) !important;">End</h5></div>
+                                    </div>
+                                    {% for event in events_created %}
+                                        {% if event.date_start > now %}
+                                            <div onclick="window.location = '{{ url_for('event', id=event.id) }}';" class="row record" style="text-align: center; padding-top: 5px; padding-bottom: 5px">
+                                                <div class="col-4 d-flex align-items-center justify-content-center"><i class="{{ event.sport.icon }}" style="padding-right: 5px"></i>{{ event.sport.name }}</div>
+                                                <div class="col-4 d-flex align-items-center justify-content-center">{{ event.date_start.strftime('%b %d, %Y') }}<br>{{ event.date_start.strftime('%H:%M') }}</div>
+                                                <div class="col-4 d-flex align-items-center justify-content-center">{{ event.date_end.strftime('%b %d, %Y') }}<br>{{ event.date_end.strftime('%H:%M') }}</div>
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="row d-flex justify-content-center">No event created.</div>
+                                {% endif %}
+                                <div class="row justify-content-center" style="padding-top: 50px;">
+                                    <button id="reviews-made-btn-open" onclick="overlay_on('reviews-made', 'reviews-made-btn-open', 'reviews-made-btn-close')" class="btn-primary"><i class="icofont-rounded-down"></i> Show Old Events</button>
+                                    <button id="reviews-made-btn-close" onclick="overlay_off('reviews-made', 'reviews-made-btn-open', 'reviews-made-btn-close')" class="btn-primary" style="display: none"><i class="icofont-rounded-up"></i> Hide Old Events</button>
+                                </div>
+                                <div class="col-lg-12 col-md-12 d-flex align-items-stretch">
+                                    <div id="reviews-made" style="margin-top: 30px">
+                                {% set past = namespace(value=False) %}
+                                {% for event in events_created_desc %}
+                                    {% if event.date_start <= now %}
+                                        {% set past.value=True %}
+                                    {% endif %}
+                                {% endfor %}
+                                {% if past.value %}
+                                    <div class="row" style="text-align: center; padding-bottom: 15px">
+                                        <div class="col-4"><h5 style="color: rgb(33,190,33) !important;">Sport</h5></div>
+                                        <div class="col-4"><h5 style="color: rgb(33,190,33) !important;">Start</h5></div>
+                                        <div class="col-4"><h5 style="color: rgb(33,190,33) !important;">End</h5></div>
+                                    </div>
+                                    {% for event in events_created_desc %}
+                                        {% if event.date_start <= now %}
+                                            <div onclick="window.location = '{{ url_for('event', id=event.id) }}';" class="row record" style="text-align: center; padding-top: 5px; padding-bottom: 5px">
+                                                <div class="col-4 d-flex align-items-center justify-content-center"><i class="{{ event.sport.icon }}" style="padding-right: 5px"></i>{{ event.sport.name }}</div>
+                                                <div class="col-4 d-flex align-items-center justify-content-center">{{ event.date_start.strftime('%b %d, %Y') }}<br>{{ event.date_start.strftime('%H:%M') }}</div>
+                                                <div class="col-4 d-flex align-items-center justify-content-center">{{ event.date_end.strftime('%b %d, %Y') }}<br>{{ event.date_end.strftime('%H:%M') }}</div>
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="row d-flex justify-content-center">No event found.</div>
+                                {% endif %}
+                  </div>
+                                </div>
+                        {% endif %}
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+            </section><!-- End My Account Section -->
+      </div>
+
+        <script>
+        function overlay_on(overlay, btn_open, btn_close) {
+            document.getElementById(overlay).style.display='inline-block';
+            document.getElementById(btn_open).style.display='none';
+            document.getElementById(btn_close).style.display='block';
+        }
+        function overlay_off(overlay, btn_open, btn_close) {
+            document.getElementById(overlay).style.display='none';
+            document.getElementById(btn_open).style.display='block';
+            document.getElementById(btn_close).style.display='none';
+        }
+    </script>
+
+  </main><!-- End #main -->
+
+
+{% endblock %}
